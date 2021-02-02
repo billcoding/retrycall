@@ -10,6 +10,10 @@ import (
 var callLogger = log.New(os.Stdout, "[RetryCall]", log.LstdFlags)
 
 func Call(fn func() interface{}) interface{} {
+	return CallWithPeriod(fn, time.Millisecond*100)
+}
+
+func CallWithPeriod(fn func() interface{}, period time.Duration) interface{} {
 	rc := make(chan interface{}, 1)
 	go func() {
 		for {
@@ -25,7 +29,7 @@ func Call(fn func() interface{}) interface{} {
 				rc <- rs
 				break
 			}
-			time.Sleep(time.Second)
+			time.Sleep(period)
 		}
 	}()
 	return <-rc
